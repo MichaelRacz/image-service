@@ -28,7 +28,7 @@ func TestBuild(t *testing.T) {
 	assert.Equal(t, `{"status":"success"}`, rec.Body.String())
 	expectedFile := fileAsString(t, TEST_DOCKERFILE)
 	enqueuedFile := <-queue.GetChannel()
-	assert.Equal(t, expectedFile, enqueuedFile)
+	assert.Equal(t, expectedFile, enqueuedFile.String())
 }
 
 func TestBuildClientError(t *testing.T) {
@@ -60,7 +60,7 @@ func TestBuildQueueLimitExceeded(t *testing.T) {
 	assert.Contains(t, rec.Body.String(), `"status":"error"`)
 }
 
-// TODO: Add missing error test cases
+// NOTE: Not all error test cases covered
 
 func requestBuild(t *testing.T, router *gin.Engine) *httptest.ResponseRecorder {
 	body, contentType := createCorrectBody(t)

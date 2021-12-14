@@ -11,8 +11,6 @@ import (
 	"github.com/docker/docker/pkg/archive"
 )
 
-type Dockerfile string
-
 const IMAGE_PUSH_TIMEOUT = time.Second * 120
 
 type Client interface {
@@ -56,7 +54,7 @@ func encodeAuthConfig(registryUserID string, password string, registryServerAddr
 }
 
 func (dc dockerClient) BuildImage(ctx context.Context, dockerFile Dockerfile, tag string) error {
-	archive, err := archive.Generate("Dockerfile", string(dockerFile))
+	archive, err := archive.Generate("Dockerfile", dockerFile.String())
 	if err != nil {
 		return err
 	}

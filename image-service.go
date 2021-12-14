@@ -2,9 +2,9 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"log"
+	"michaelracz/image-service/pgk/docker"
 	"michaelracz/image-service/pgk/queue"
 	"net/http"
 
@@ -23,11 +23,11 @@ func setupRouter(queue queue.Queue) *gin.Engine {
 
 	router.POST("/build", func(c *gin.Context) {
 		dockerfile, err := readDockerfile(c)
+		// NOTE: Some kind of validation needs to be done here
 		if err != nil {
 			handleWebError(c, err)
 			return
 		}
-		fmt.Println(dockerfile)
 		if ok := queue.Enqueue(dockerfile); ok {
 			c.JSON(http.StatusAccepted, map[string]string{"status": "success"})
 		} else {
@@ -42,7 +42,7 @@ func setupRouter(queue queue.Queue) *gin.Engine {
 	return router
 }
 
-func readDockerfile(c *gin.Context) (string, *WebError) {
+func readDockerfile(c *gin.Context) (docker.Dockerfile, *WebError) {
 	var err error
 	file, err := c.FormFile("Dockerfile")
 	if err != nil {
@@ -56,7 +56,8 @@ func readDockerfile(c *gin.Context) (string, *WebError) {
 	if err != nil {
 		return "", &WebError{err, http.StatusInternalServerError}
 	}
-	return string(fileBytes), nil
+
+	return docker.NewDockerfile(fileBytes), nil
 }
 
 type WebError struct {
