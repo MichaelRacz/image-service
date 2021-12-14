@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"bytes"
@@ -15,11 +15,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const TEST_DOCKERFILE = "./test-dockerfiles/alpine-dockerfile"
+const TEST_DOCKERFILE = "../test-dockerfiles/alpine-dockerfile"
 
 func TestBuild(t *testing.T) {
 	queue := queue.NewQueue(1)
-	router := setupRouter(queue)
+	router := SetupRouter(queue)
 
 	rec := requestBuild(t, router)
 
@@ -32,7 +32,7 @@ func TestBuild(t *testing.T) {
 }
 
 func TestBuildClientError(t *testing.T) {
-	router := setupRouter(queue.NewQueue(1))
+	router := SetupRouter(queue.NewQueue(1))
 
 	body, contentType := createInvalidBody(t)
 	req, err := http.NewRequest("POST", "/build", body)
@@ -50,7 +50,7 @@ func TestBuildClientError(t *testing.T) {
 }
 
 func TestBuildQueueLimitExceeded(t *testing.T) {
-	router := setupRouter(queue.NewQueue(1))
+	router := SetupRouter(queue.NewQueue(1))
 
 	requestBuild(t, router)
 	rec := requestBuild(t, router)
@@ -64,10 +64,12 @@ func TestBuildQueueLimitExceeded(t *testing.T) {
 
 func requestBuild(t *testing.T, router *gin.Engine) *httptest.ResponseRecorder {
 	body, contentType := createCorrectBody(t)
+
 	req, err := http.NewRequest("POST", "/build", body)
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	req.Header.Set("Content-Type", contentType)
 
 	rec := httptest.NewRecorder()
@@ -90,12 +92,15 @@ func createBody(t *testing.T, fieldName string) (body io.Reader, contentType str
 	var buffer bytes.Buffer
 	multiPartWriter := multipart.NewWriter(&buffer)
 	var fileWriter io.Writer
+
 	if fileWriter, err = multiPartWriter.CreateFormFile(fieldName, file.Name()); err != nil {
 		t.Fatal(err)
 	}
+
 	if _, err = io.Copy(fileWriter, file); err != nil {
 		t.Fatal(err)
 	}
+
 	multiPartWriter.Close()
 	return &buffer, multiPartWriter.FormDataContentType()
 }
@@ -105,5 +110,6 @@ func fileAsString(t *testing.T, filename string) string {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	return string(bytes)
 }
