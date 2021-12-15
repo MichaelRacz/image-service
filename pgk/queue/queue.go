@@ -6,7 +6,15 @@ import (
 )
 
 type Queue interface {
+	Enqueueer
+	Dequeueer
+}
+
+type Enqueueer interface {
 	Enqueue(dockerFile docker.Dockerfile) bool
+}
+
+type Dequeueer interface {
 	Dequeue(ctx context.Context) (docker.Dockerfile, bool)
 }
 

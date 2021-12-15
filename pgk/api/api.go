@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter(queue queue.Queue) *gin.Engine {
+func SetupRouter(queue queue.Enqueueer) *gin.Engine {
 	router := gin.Default()
 
 	// Set a lower memory limit for multipart forms (default is 32 MiB)

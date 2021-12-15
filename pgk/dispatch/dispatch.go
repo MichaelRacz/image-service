@@ -7,7 +7,7 @@ import (
 	"michaelracz/image-service/pgk/queue"
 )
 
-func Dispatch(ctx context.Context, queue queue.Queue, dockerClient docker.Client) {
+func Dispatch(ctx context.Context, queue queue.Dequeueer, dockerClient docker.Client) {
 	for {
 		df, ok := queue.Dequeue(ctx)
 		if !ok {
