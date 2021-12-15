@@ -16,6 +16,10 @@ import (
 func main() {
 	dispatcherCtx, dispatcherCancel := context.WithCancel(context.Background())
 	defer dispatcherCancel()
+	// NOTE: As a simplification, queue, dispatcher, and api run
+	// in the same process. For production usage, a queue as a
+	// service and splitting api and dispatching is a more robust
+	// and scalable solution.
 	q := queue.NewQueue(10)
 	startDispatcher(dispatcherCtx, q)
 	srv := startApi(q)

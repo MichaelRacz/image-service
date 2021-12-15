@@ -7,6 +7,7 @@ import (
 	"michaelracz/image-service/pkg/queue"
 )
 
+// Dispatch takes Dockerfiles from a queue, builds and pushes the image
 func Dispatch(ctx context.Context, queue queue.Dequeueer, dockerClient docker.Client) {
 	for {
 		df, ok := queue.Dequeue(ctx)

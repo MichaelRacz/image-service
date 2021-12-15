@@ -19,6 +19,12 @@ export REGISTRY_URL=...
 ```
 Tested with _dockerhub_ registry (https://index.docker.io/v1/).
 
+**NOT TESTED and NOT needed for local default setup**: The documentation of the used docker client lib mentions the following env variables:
+- DOCKER_HOST to set the url to the docker server
+- DOCKER_API_VERSION to set the version of the API to reach, leave empty for latest
+- DOCKER_CERT_PATH to load the TLS certificates from
+- DOCKER_TLS_VERIFY to enable or disable TLS verification, off by default
+
 ## Starting the service
 
 ### Local

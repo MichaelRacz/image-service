@@ -5,15 +5,18 @@ import (
 	"michaelracz/image-service/pkg/docker"
 )
 
+// Queue provides a queue of Dockerfiles
 type Queue interface {
 	Enqueueer
 	Dequeueer
 }
 
+// Enqueueer adds Dockerfiles to a queue
 type Enqueueer interface {
 	Enqueue(dockerFile docker.Dockerfile) bool
 }
 
+// Dequeueer fetches Dockerfiles from a queue
 type Dequeueer interface {
 	Dequeue(ctx context.Context) (docker.Dockerfile, bool)
 }
@@ -24,10 +27,12 @@ type memoryQueue struct {
 	queue chan docker.Dockerfile
 }
 
+// NewQueue initializes an in memory queue
 func NewQueue(limit int) Queue {
 	return memoryQueue{make(chan docker.Dockerfile, limit)}
 }
 
+// Enqueue adds Dockerfiles to a queue
 func (mq memoryQueue) Enqueue(dockerfile docker.Dockerfile) bool {
 	select {
 	case mq.queue <- dockerfile:
@@ -37,6 +42,7 @@ func (mq memoryQueue) Enqueue(dockerfile docker.Dockerfile) bool {
 	}
 }
 
+// Dequeue fetches Dockerfiles from a queue
 func (mq memoryQueue) Dequeue(ctx context.Context) (docker.Dockerfile, bool) {
 	select {
 	case df := <-mq.queue:

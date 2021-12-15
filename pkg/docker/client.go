@@ -16,6 +16,7 @@ import (
 
 const IMAGE_PUSH_TIMEOUT = time.Second * 120
 
+// Client provides methods for interadtion with docker
 type Client interface {
 	BuildImage(ctx context.Context, dockerFile Dockerfile, tag string) error
 	PushImage(ctx context.Context, tag string) error
@@ -28,7 +29,13 @@ type dockerClient struct {
 	registryUserID    *string
 }
 
+// NewClient initializes a docker client
 func NewClient(registryUserID string, password string, registryServerAddress string) (Client, error) {
+	// Not tested, the following env variables can be used to configure the docker client
+	// - DOCKER_HOST to set the url to the docker server.
+	// - DOCKER_API_VERSION to set the version of the API to reach, leave empty for latest.
+	// - DOCKER_CERT_PATH to load the TLS certificates from.
+	// - DOCKER_TLS_VERIFY to enable or disable TLS verification, off by default.
 	cli, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
 		return nil, err
@@ -58,6 +65,7 @@ func encodeAuthConfig(registryUserID string, password string, registryServerAddr
 	return &authConfigEncoded, nil
 }
 
+// BuildImage creates an image using the docker client
 func (dc dockerClient) BuildImage(ctx context.Context, dockerFile Dockerfile, tag string) error {
 	archive, err := archive.Generate("Dockerfile", dockerFile.String())
 	if err != nil {
@@ -80,6 +88,7 @@ func (dc dockerClient) BuildImage(ctx context.Context, dockerFile Dockerfile, ta
 	return nil
 }
 
+// PushImage pushes an image to the registry configured via env variables
 func (dc dockerClient) PushImage(ctx context.Context, tag string) error {
 	ctx, cancel := context.WithTimeout(ctx, IMAGE_PUSH_TIMEOUT)
 	defer cancel()
@@ -100,6 +109,7 @@ func (dc dockerClient) PushImage(ctx context.Context, tag string) error {
 	return nil
 }
 
+// CreateTag creates a tag containg a timestamp
 func (dc dockerClient) CreateTag() string {
 	// NOTE: Meaningful tag naming required for prod use
 	tag := fmt.Sprintf("%s/image-service-output-%d", *dc.registryUserID, time.Now().UnixMilli())
