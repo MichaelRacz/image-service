@@ -7,7 +7,7 @@ The service consists of 3 components
 - **api**: RESTful API to submit a dockerfile
 - **dispatcher**: build the dockerfiles from the queue
 
-Building a docker image may take a while, that's why it happens async. A queue is  used to create backpressure and decouple the _api_ and the _dispatcher.
+Building a docker image may take a while, that's why it happens async. A queue is  used to create backpressure and decouple the _api_ and the _dispatcher_.
 
 ## Setup
 
