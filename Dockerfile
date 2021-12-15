@@ -1,16 +1,9 @@
 FROM golang:1.17.5-alpine3.15
 
-RUN apk add --update docker 
-#openrc
-# RUN apk add openrc
-# RUN openrc 
-# RUN addgroup root docker
-# RUN /etc/init.d/docker start
-# RUN service docker start
-# RUN rc-update add docker boot
-
 WORKDIR /go/src
 COPY . /go/src/
+
+RUN apk add --update docker 
 RUN go build ./image-service.go
 
 EXPOSE 8080
