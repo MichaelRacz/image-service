@@ -13,6 +13,8 @@ import (
 	"time"
 )
 
+const QUEUE_SIZE = 10
+
 func main() {
 	dispatcherCtx, dispatcherCancel := context.WithCancel(context.Background())
 	defer dispatcherCancel()
@@ -20,7 +22,7 @@ func main() {
 	// in the same process. For production usage, a queue as a
 	// service and splitting api and dispatching is a more robust
 	// and scalable solution.
-	q := queue.NewQueue(10)
+	q := queue.NewQueue(QUEUE_SIZE)
 	startDispatcher(dispatcherCtx, q)
 	srv := startApi(q)
 
