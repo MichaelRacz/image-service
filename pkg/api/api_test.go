@@ -5,7 +5,7 @@ import (
 	"context"
 	"io"
 	"io/ioutil"
-	"michaelracz/image-service/pgk/queue"
+	"michaelracz/image-service/pkg/queue"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"

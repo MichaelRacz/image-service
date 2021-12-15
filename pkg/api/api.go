@@ -4,8 +4,8 @@ import (
 	"errors"
 	"io/ioutil"
 	"log"
-	"michaelracz/image-service/pgk/docker"
-	"michaelracz/image-service/pgk/queue"
+	"michaelracz/image-service/pkg/docker"
+	"michaelracz/image-service/pkg/queue"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

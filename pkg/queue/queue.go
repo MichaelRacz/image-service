@@ -2,7 +2,7 @@ package queue
 
 import (
 	"context"
-	"michaelracz/image-service/pgk/docker"
+	"michaelracz/image-service/pkg/docker"
 )
 
 type Queue interface {

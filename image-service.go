@@ -1,11 +1,75 @@
 package main
 
 import (
-	"michaelracz/image-service/pgk/api"
-	"michaelracz/image-service/pgk/queue"
+	"context"
+	"log"
+	"michaelracz/image-service/pkg/api"
+	"michaelracz/image-service/pkg/dispatch"
+	"michaelracz/image-service/pkg/docker"
+	"michaelracz/image-service/pkg/queue"
+	"net/http"
+	"os"
+	"os/signal"
+	"time"
 )
 
 func main() {
-	router := api.SetupRouter(queue.NewQueue(10))
-	router.Run(":8080")
+	dispatcherCtx, dispatcherCancel := context.WithCancel(context.Background())
+	defer dispatcherCancel()
+	q := queue.NewQueue(10)
+	startDispatcher(dispatcherCtx, q)
+	srv := startApi(q)
+
+	waitForQuit()
+
+	log.Println("Shutdown image service ...")
+	go shutdownApi(srv)
+	dispatcherCancel()
+	time.Sleep(5 * time.Second)
+	log.Println("Exiting")
+	os.Exit(0)
+}
+
+func startDispatcher(ctx context.Context, q queue.Dequeueer) {
+	registryUserID := os.Getenv("REGISTRY_USER_ID")
+	password := os.Getenv("REGISTRY_PASSWORD")
+	registryUrl := os.Getenv("REGISTRY_URL")
+	dc, err := docker.NewClient(registryUserID, password, registryUrl)
+	if err != nil {
+		log.Printf("ERROR: Cannot start image-service: %v\n", err)
+		os.Exit(1)
+	}
+
+	go dispatch.Dispatch(ctx, q, dc)
+}
+
+func startApi(q queue.Enqueueer) *http.Server {
+	router := api.SetupRouter(q)
+
+	srv := &http.Server{
+		Addr:    ":8080",
+		Handler: router,
+	}
+
+	go func() {
+		if err := srv.ListenAndServe(); err != nil {
+			log.Printf("ERROR: Api error: %s\n", err)
+		}
+	}()
+
+	return srv
+}
+
+func waitForQuit() {
+	quit := make(chan os.Signal)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+}
+
+func shutdownApi(srv *http.Server) {
+	apiCtx, apiCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer apiCancel()
+	if err := srv.Shutdown(apiCtx); err != nil {
+		log.Printf("ERROR: Cannot shut down image-service api: %v\n", err)
+	}
 }

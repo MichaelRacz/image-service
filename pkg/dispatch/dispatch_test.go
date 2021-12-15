@@ -3,8 +3,8 @@ package dispatch
 import (
 	"context"
 	"errors"
-	"michaelracz/image-service/pgk/docker"
-	"michaelracz/image-service/pgk/queue"
+	"michaelracz/image-service/pkg/docker"
+	"michaelracz/image-service/pkg/queue"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

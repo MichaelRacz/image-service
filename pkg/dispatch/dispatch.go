@@ -3,8 +3,8 @@ package dispatch
 import (
 	"context"
 	"log"
-	"michaelracz/image-service/pgk/docker"
-	"michaelracz/image-service/pgk/queue"
+	"michaelracz/image-service/pkg/docker"
+	"michaelracz/image-service/pkg/queue"
 )
 
 func Dispatch(ctx context.Context, queue queue.Dequeueer, dockerClient docker.Client) {
