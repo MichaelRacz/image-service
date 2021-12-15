@@ -1,10 +1,13 @@
 package queue
 
-import "michaelracz/image-service/pgk/docker"
+import (
+	"context"
+	"michaelracz/image-service/pgk/docker"
+)
 
 type Queue interface {
 	Enqueue(dockerFile docker.Dockerfile) bool
-	GetChannel() <-chan docker.Dockerfile
+	Dequeue(ctx context.Context) (docker.Dockerfile, bool)
 }
 
 // NOTE: A memory queue is used to save implemention time,
@@ -26,9 +29,11 @@ func (mq memoryQueue) Enqueue(dockerfile docker.Dockerfile) bool {
 	}
 }
 
-//
-// TODO: make symmetric, pass cancel context
-//
-func (mq memoryQueue) GetChannel() <-chan docker.Dockerfile {
-	return mq.queue
+func (mq memoryQueue) Dequeue(ctx context.Context) (docker.Dockerfile, bool) {
+	select {
+	case df := <-mq.queue:
+		return df, true
+	case <-ctx.Done():
+		return docker.Dockerfile(""), false
+	}
 }

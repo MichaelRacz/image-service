@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/docker/docker/api/types"
@@ -16,11 +17,13 @@ const IMAGE_PUSH_TIMEOUT = time.Second * 120
 type Client interface {
 	BuildImage(ctx context.Context, dockerFile Dockerfile, tag string) error
 	PushImage(ctx context.Context, tag string) error
+	CreateTag() string
 }
 
 type dockerClient struct {
 	cli               *client.Client
 	authConfigEncoded *string
+	registryUserID    *string
 }
 
 func NewClient(registryUserID string, password string, registryServerAddress string) (Client, error) {
@@ -34,7 +37,7 @@ func NewClient(registryUserID string, password string, registryServerAddress str
 		return nil, err
 	}
 
-	return dockerClient{cli, authConfigEncoded}, nil
+	return dockerClient{cli, authConfigEncoded, &registryUserID}, nil
 }
 
 func encodeAuthConfig(registryUserID string, password string, registryServerAddress string) (*string, error) {
@@ -87,4 +90,10 @@ func (dc dockerClient) PushImage(ctx context.Context, tag string) error {
 
 	defer res.Close()
 	return nil
+}
+
+func (dc dockerClient) CreateTag() string {
+	// NOTE: Meaningful tag naming required for prod use
+	tag := fmt.Sprintf("%s/image-service-output-%d", *dc.registryUserID, time.Now().UnixMilli())
+	return tag
 }

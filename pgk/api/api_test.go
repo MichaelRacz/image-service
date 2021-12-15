@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"io"
 	"io/ioutil"
 	"michaelracz/image-service/pgk/queue"
@@ -27,7 +28,7 @@ func TestBuild(t *testing.T) {
 	assert.Equal(t, "application/json; charset=utf-8", rec.Header().Get("Content-Type"))
 	assert.Equal(t, `{"status":"success"}`, rec.Body.String())
 	expectedFile := fileAsString(t, TEST_DOCKERFILE)
-	enqueuedFile := <-queue.GetChannel()
+	enqueuedFile, _ := queue.Dequeue(context.Background())
 	assert.Equal(t, expectedFile, enqueuedFile.String())
 }
 
