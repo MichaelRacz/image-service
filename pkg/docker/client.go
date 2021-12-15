@@ -5,6 +5,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
+	"os"
 	"time"
 
 	"github.com/docker/docker/api/types"
@@ -71,7 +73,10 @@ func (dc dockerClient) BuildImage(ctx context.Context, dockerFile Dockerfile, ta
 		return err
 	}
 
+	// NOTE: Printing to stdout for convenience, would be too verbose in prod
+	io.Copy(os.Stdout, res.Body)
 	defer res.Body.Close()
+
 	return nil
 }
 
@@ -88,7 +93,10 @@ func (dc dockerClient) PushImage(ctx context.Context, tag string) error {
 		return err
 	}
 
+	// NOTE: Printing to stdout for convenience, would be too verbose in prod
+	io.Copy(os.Stdout, res)
 	defer res.Close()
+
 	return nil
 }
 
