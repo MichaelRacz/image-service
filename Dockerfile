@@ -10,5 +10,5 @@ EXPOSE 8080
 CMD ["./image-service"]
 
 # NOTE: For prod usage, another build stage can
-# be definded that slims down the image and does
+# be defined that slims down the image and does
 # not run as root. 
