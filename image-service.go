@@ -14,6 +14,7 @@ import (
 )
 
 const QUEUE_SIZE = 10
+const SHUTDOWN_GRACE_PERIOD = 5 * time.Second
 
 func main() {
 	dispatcherCtx, dispatcherCancel := context.WithCancel(context.Background())
@@ -31,7 +32,7 @@ func main() {
 	log.Println("Shutdown image service ...")
 	go shutdownApi(srv)
 	dispatcherCancel()
-	time.Sleep(5 * time.Second)
+	time.Sleep(SHUTDOWN_GRACE_PERIOD)
 	log.Println("Exiting")
 	os.Exit(0)
 }
@@ -73,7 +74,7 @@ func waitForQuit() {
 }
 
 func shutdownApi(srv *http.Server) {
-	apiCtx, apiCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	apiCtx, apiCancel := context.WithTimeout(context.Background(), SHUTDOWN_GRACE_PERIOD)
 	defer apiCancel()
 	if err := srv.Shutdown(apiCtx); err != nil {
 		log.Printf("ERROR: Cannot shut down image-service api: %v\n", err)

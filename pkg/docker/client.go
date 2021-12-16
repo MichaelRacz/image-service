@@ -16,7 +16,7 @@ import (
 
 const IMAGE_PUSH_TIMEOUT = time.Second * 120
 
-// Client provides methods for interadtion with docker
+// Client provides methods for interaction with docker
 type Client interface {
 	BuildImage(ctx context.Context, dockerFile Dockerfile, tag string) error
 	PushImage(ctx context.Context, tag string) error
@@ -84,7 +84,6 @@ func (dc dockerClient) BuildImage(ctx context.Context, dockerFile Dockerfile, ta
 	// NOTE: Printing to stdout for convenience, would be too verbose in prod
 	io.Copy(os.Stdout, res.Body)
 	defer res.Body.Close()
-
 	return nil
 }
 
@@ -105,7 +104,6 @@ func (dc dockerClient) PushImage(ctx context.Context, tag string) error {
 	// NOTE: Printing to stdout for convenience, would be too verbose in prod
 	io.Copy(os.Stdout, res)
 	defer res.Close()
-
 	return nil
 }
 
