@@ -80,10 +80,10 @@ func (dc dockerClient) BuildImage(ctx context.Context, dockerFile Dockerfile, ta
 	if err != nil {
 		return err
 	}
+	defer res.Body.Close()
 
 	// NOTE: Printing to stdout for convenience, would be too verbose in prod
 	io.Copy(os.Stdout, res.Body)
-	defer res.Body.Close()
 	return nil
 }
 
@@ -100,10 +100,10 @@ func (dc dockerClient) PushImage(ctx context.Context, tag string) error {
 	if err != nil {
 		return err
 	}
+	defer res.Close()
 
 	// NOTE: Printing to stdout for convenience, would be too verbose in prod
 	io.Copy(os.Stdout, res)
-	defer res.Close()
 	return nil
 }
 
